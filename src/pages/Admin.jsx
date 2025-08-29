@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Shield, Search } from "lucide-react";
+import { Shield, Search, UserCheck, UserX, Users, Crown } from "lucide-react";
 import api from "../services/api";
 import toast from "react-hot-toast";
 
@@ -8,6 +8,8 @@ const Admin = () => {
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [pagination, setPagination] = useState({});
+  const [selectedUsers, setSelectedUsers] = useState(new Set());
+  const [selectAll, setSelectAll] = useState(false);
 
   const fetchUsers = async (page = 1, searchQuery = "") => {
     try {
@@ -17,6 +19,9 @@ const Admin = () => {
       );
       setUsers(response.data.users);
       setPagination(response.data.pagination);
+      // Clear selections when fetching new data
+      setSelectedUsers(new Set());
+      setSelectAll(false);
     } catch (error) {
       toast.error("Failed to fetch users");
     } finally {
@@ -33,25 +38,74 @@ const Admin = () => {
     fetchUsers(1, search);
   };
 
-  const updateUserRole = async (userId, role) => {
+  const handleSelectAll = () => {
+    if (selectAll) {
+      setSelectedUsers(new Set());
+    } else {
+      setSelectedUsers(new Set(users.map(user => user.id)));
+    }
+    setSelectAll(!selectAll);
+  };
+
+  const handleSelectUser = (userId) => {
+    const newSelected = new Set(selectedUsers);
+    if (newSelected.has(userId)) {
+      newSelected.delete(userId);
+    } else {
+      newSelected.add(userId);
+    }
+    setSelectedUsers(newSelected);
+    setSelectAll(newSelected.size === users.length);
+  };
+
+  const bulkUpdateRole = async (newRole) => {
+    if (selectedUsers.size === 0) {
+      toast.error("Please select users first");
+      return;
+    }
+
     try {
-      await api.put(`/admin/users/${userId}/role`, { role });
-      toast.success(`User role updated to ${role}`);
+      const userIds = Array.from(selectedUsers);
+      await Promise.all(
+        userIds.map(userId => 
+          api.put(`/admin/users/${userId}/role`, { role: newRole })
+        )
+      );
+      toast.success(`${selectedUsers.size} user(s) role updated to ${newRole}`);
       fetchUsers(pagination.page, search);
     } catch (error) {
-      toast.error("Failed to update user role");
+      toast.error("Failed to update user roles");
     }
   };
 
-  const toggleUserStatus = async (userId) => {
+  const bulkUpdateStatus = async (isActive) => {
+    if (selectedUsers.size === 0) {
+      toast.error("Please select users first");
+      return;
+    }
+
     try {
-      await api.put(`/admin/users/${userId}/status`);
-      toast.success("User status updated");
+      const userIds = Array.from(selectedUsers);
+      // Filter users that need status change
+      const usersToUpdate = users.filter(user => 
+        selectedUsers.has(user.id) && user.isActive !== isActive
+      );
+      
+      await Promise.all(
+        usersToUpdate.map(user => 
+          api.put(`/admin/users/${user.id}/status`)
+        )
+      );
+      
+      toast.success(`${usersToUpdate.length} user(s) ${isActive ? 'activated' : 'deactivated'}`);
       fetchUsers(pagination.page, search);
     } catch (error) {
       toast.error("Failed to update user status");
     }
   };
+
+  const selectedCount = selectedUsers.size;
+  const hasSelections = selectedCount > 0;
 
   return (
     <div className="space-y-6">
@@ -83,10 +137,61 @@ const Admin = () => {
       </div>
 
       <div className="bg-white shadow rounded-lg overflow-hidden">
+        {/* Bulk Actions Toolbar */}
+        {hasSelections && (
+          <div className="bg-blue-50 border-b border-blue-200 px-6 py-4">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center space-x-4">
+                <span className="text-sm font-medium text-blue-900">
+                  {selectedCount} user{selectedCount !== 1 ? 's' : ''} selected
+                </span>
+              </div>
+              <div className="flex items-center space-x-2">
+                <button
+                  onClick={() => bulkUpdateRole('ADMIN')}
+                  className="inline-flex items-center px-3 py-2 border border-transparent text-sm font-medium rounded-md text-blue-700 bg-blue-100 hover:bg-blue-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                >
+                  <Crown className="w-4 h-4 mr-2" />
+                  Make Admin
+                </button>
+                <button
+                  onClick={() => bulkUpdateRole('USER')}
+                  className="inline-flex items-center px-3 py-2 border border-transparent text-sm font-medium rounded-md text-gray-700 bg-gray-100 hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500"
+                >
+                  <Users className="w-4 h-4 mr-2" />
+                  Make User
+                </button>
+                <button
+                  onClick={() => bulkUpdateStatus(true)}
+                  className="inline-flex items-center px-3 py-2 border border-transparent text-sm font-medium rounded-md text-green-700 bg-green-100 hover:bg-green-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
+                >
+                  <UserCheck className="w-4 h-4 mr-2" />
+                  Activate
+                </button>
+                <button
+                  onClick={() => bulkUpdateStatus(false)}
+                  className="inline-flex items-center px-3 py-2 border border-transparent text-sm font-medium rounded-md text-red-700 bg-red-100 hover:bg-red-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
+                >
+                  <UserX className="w-4 h-4 mr-2" />
+                  Deactivate
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
         <div className="overflow-x-auto">
           <table className="min-w-full divide-y divide-gray-200">
             <thead className="bg-gray-50">
               <tr>
+                <th className="px-6 py-3 text-left">
+                  <input
+                    type="checkbox"
+                    checked={selectAll}
+                    onChange={handleSelectAll}
+                    className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                  />
+                </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   User
                 </th>
@@ -98,9 +203,6 @@ const Admin = () => {
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   OAuth
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Actions
                 </th>
               </tr>
             </thead>
@@ -124,7 +226,20 @@ const Admin = () => {
                 </tr>
               ) : (
                 users.map((user) => (
-                  <tr key={user.id} className="hover:bg-gray-50">
+                  <tr 
+                    key={user.id} 
+                    className={`hover:bg-gray-50 ${
+                      selectedUsers.has(user.id) ? 'bg-blue-50' : ''
+                    }`}
+                  >
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <input
+                        type="checkbox"
+                        checked={selectedUsers.has(user.id)}
+                        onChange={() => handleSelectUser(user.id)}
+                        className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                      />
+                    </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="flex items-center">
                         <div className="w-10 h-10 bg-gray-200 rounded-full flex items-center justify-center">
@@ -167,43 +282,12 @@ const Admin = () => {
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                       <div className="flex space-x-1">
                         {user.googleId && (
-                          <span className="text-red-600">G</span>
+                          <span className="text-red-600">Google</span>
                         )}
                         {user.githubId && (
-                          <span className="text-gray-900">H</span>
+                          <span className="text-gray-900">Github</span>
                         )}
                         {!user.googleId && !user.githubId && <span>Email</span>}
-                      </div>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                      <div className="flex space-x-2">
-                        <button
-                          onClick={() =>
-                            updateUserRole(
-                              user.id,
-                              user.role === "ADMIN" ? "USER" : "ADMIN"
-                            )
-                          }
-                          className={`px-3 py-1 rounded text-xs ${
-                            user.role === "ADMIN"
-                              ? "bg-gray-100 text-gray-700 hover:bg-gray-200"
-                              : "bg-blue-100 text-blue-700 hover:bg-blue-200"
-                          }`}
-                        >
-                          {user.role === "ADMIN"
-                            ? "Remove Admin"
-                            : "Make Admin"}
-                        </button>
-                        <button
-                          onClick={() => toggleUserStatus(user.id)}
-                          className={`px-3 py-1 rounded text-xs ${
-                            user.isActive
-                              ? "bg-red-100 text-red-700 hover:bg-red-200"
-                              : "bg-green-100 text-green-700 hover:bg-green-200"
-                          }`}
-                        >
-                          {user.isActive ? "Deactivate" : "Activate"}
-                        </button>
                       </div>
                     </td>
                   </tr>

@@ -1,9 +1,8 @@
-import { useEffect } from "react";
+import { useState } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { useDispatch } from "react-redux";
-import { login, clearError } from "../store/slices/authSlice";
-import { useAuth } from "../hooks/useAuth";
+import { login } from "../store/slices/authSlice";
 import toast from "react-hot-toast";
 
 const Login = () => {
@@ -12,29 +11,23 @@ const Login = () => {
     handleSubmit,
     formState: { errors },
   } = useForm();
-  const { isAuthenticated, isLoading } = useAuth();
+  const [isLoading, setIsLoading] = useState(false);
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const location = useLocation();
 
   const from = location.state?.from?.pathname || "/dashboard";
 
-  useEffect(() => {
-    if (isAuthenticated) {
-      navigate(from, { replace: true });
-    }
-  }, [isAuthenticated, navigate, from]);
-
-  useEffect(() => {
-    dispatch(clearError());
-  }, [dispatch]);
-
   const onSubmit = async (data) => {
     try {
+      setIsLoading(true);
       await dispatch(login(data)).unwrap();
+      navigate(from, { replace: true });
       toast.success("Login successful!");
     } catch (err) {
       toast.error(err);
+    } finally {
+      setIsLoading(false);
     }
   };
 

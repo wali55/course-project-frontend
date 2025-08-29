@@ -1,12 +1,10 @@
-import { useEffect } from "react";
+import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { useDispatch } from "react-redux";
 import {
-  register as registerUser,
-  clearError,
+  register as registerUser
 } from "../store/slices/authSlice";
-import { useAuth } from "../hooks/useAuth";
 import toast from "react-hot-toast";
 
 const Register = () => {
@@ -15,26 +13,20 @@ const Register = () => {
     handleSubmit,
     formState: { errors }
   } = useForm();
-  const { isAuthenticated, isLoading } = useAuth();
+  const [isLoading, setIsLoading] = useState(false);
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
-  useEffect(() => {
-    if (isAuthenticated) {
-      navigate("/dashboard");
-    }
-  }, [isAuthenticated, navigate]);
-
-  useEffect(() => {
-    dispatch(clearError());
-  }, [dispatch]);
-
   const onSubmit = async (data) => {
     try {
+      setIsLoading(true);
       await dispatch(registerUser(data)).unwrap();
+      navigate("/dashboard");
       toast.success("Registration successful!");
     } catch (err) {
       toast.error(err);
+    } finally {
+      setIsLoading(false);
     }
   };
 

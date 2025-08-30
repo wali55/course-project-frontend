@@ -1,7 +1,7 @@
-import { useAuth } from '../hooks/useAuth';
+import { useSelector } from "react-redux";
 
 const Dashboard = () => {
-  const { user } = useAuth();
+  const { user } = useSelector((state) => state.auth);
 
   return (
     <div className="space-y-6">

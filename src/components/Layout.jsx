@@ -1,12 +1,11 @@
 import { Outlet, Link, useNavigate } from "react-router-dom";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { logout } from "../store/slices/authSlice";
-import { useAuth } from "../hooks/useAuth";
 import { User, LogOut, Settings, Shield } from "lucide-react";
 import toast from "react-hot-toast";
 
 const Layout = () => {
-  const { user } = useAuth();
+  const { user } = useSelector((state) => state.auth);
   const dispatch = useDispatch();
   const navigate = useNavigate();
 

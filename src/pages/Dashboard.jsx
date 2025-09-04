@@ -1,4 +1,5 @@
 import { useSelector } from "react-redux";
+import Inventories from "./Inventories";
 
 const Dashboard = () => {
   const { user } = useSelector((state) => state.auth);
@@ -29,29 +30,7 @@ const Dashboard = () => {
         </div>
       </div>
       
-      <div className="bg-white shadow rounded-lg">
-        <div className="px-4 py-5 sm:p-6">
-          <h2 className="text-lg font-medium text-gray-900 mb-4">Quick Actions</h2>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-            <button className="p-4 border border-gray-300 rounded-lg hover:bg-gray-50 text-left">
-              <h3 className="font-medium text-gray-900">View Inventory</h3>
-              <p className="text-sm text-gray-500">Browse all items</p>
-            </button>
-            <button className="p-4 border border-gray-300 rounded-lg hover:bg-gray-50 text-left">
-              <h3 className="font-medium text-gray-900">Add Item</h3>
-              <p className="text-sm text-gray-500">Create new inventory item</p>
-            </button>
-            <button className="p-4 border border-gray-300 rounded-lg hover:bg-gray-50 text-left">
-              <h3 className="font-medium text-gray-900">Reports</h3>
-              <p className="text-sm text-gray-500">View analytics</p>
-            </button>
-            <button className="p-4 border border-gray-300 rounded-lg hover:bg-gray-50 text-left">
-              <h3 className="font-medium text-gray-900">Settings</h3>
-              <p className="text-sm text-gray-500">Manage preferences</p>
-            </button>
-          </div>
-        </div>
-      </div>
+      <Inventories />
     </div>
   );
 };

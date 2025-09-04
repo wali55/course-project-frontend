@@ -7,10 +7,10 @@ export const useAuth = () => {
   const { user, isLoading, error, isAuthenticated } = useSelector((state) => state.auth);
 
   useEffect(() => {
-    if (!user && !isLoading) {
+    if (!user && !isLoading && isAuthenticated) {
       dispatch(getCurrentUser());
     }
-  }, [dispatch, user, isLoading]);
+  }, [dispatch, user, isLoading, isAuthenticated]);
 
   return { user, isLoading, error, isAuthenticated };
 };

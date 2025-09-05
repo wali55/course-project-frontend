@@ -29,6 +29,8 @@ import LoadingSpinner from "../components/LoadingSpinner";
 import FilterInventories from "../components/FilterInventories";
 import toast from "react-hot-toast";
 import InventoriesPagination from "../components/InventoriesPagination";
+import { useNavigate } from "react-router-dom";
+import { clearAccessList, fetchAccessList } from "../store/slices/accessControlSlice";
 
 const Inventories = () => {
   const dispatch = useDispatch();
@@ -72,6 +74,8 @@ const Inventories = () => {
     dispatch(fetchTags());
   }, [dispatch, currentPage, pageSize, search, sortField, sortOrder, filters]);
 
+  const navigate = useNavigate();
+
   useEffect(() => {
     if (error) {
       toast.error(error);
@@ -101,10 +105,7 @@ const Inventories = () => {
     if (selectAll) {
       setSelectedInventories(new Set());
     } else {
-      const editableInventories = filteredAndSortedInventories.filter((inv) =>
-        canEdit(inv)
-      );
-      setSelectedInventories(new Set(editableInventories.map((inv) => inv.id)));
+      setSelectedInventories(new Set(filteredAndSortedInventories.map((inv) => inv.id)));
     }
     setSelectAll(!selectAll);
   };
@@ -117,18 +118,10 @@ const Inventories = () => {
       newSelected.add(inventoryId);
     }
     setSelectedInventories(newSelected);
-
-    const editableInventories = filteredAndSortedInventories.filter((inv) =>
-      canEdit(inv)
-    );
     setSelectAll(
-      newSelected.size === editableInventories.length &&
-        editableInventories.length > 0
+      newSelected.size === filteredAndSortedInventories.length &&
+        filteredAndSortedInventories.length > 0
     );
-  };
-
-  const canEdit = (inventory) => {
-    return user && (user.id === inventory.creatorId || user.role === "ADMIN");
   };
 
   const handleBulkEdit = () => {
@@ -213,6 +206,12 @@ const Inventories = () => {
   const selectedCount = selectedInventories.size;
   const hasSelections = selectedCount > 0;
 
+  const handleInventoryClick = async (id) => {
+    dispatch(clearAccessList());
+    await dispatch(fetchAccessList(id));
+    navigate(`/inventories/${id}`);
+  }
+
   if (loading) {
     return <LoadingSpinner />;
   }
@@ -222,7 +221,7 @@ const Inventories = () => {
       <div className="flex justify-between items-center mb-6">
         <div>
           <h1 className="text-2xl font-bold text-gray-900 mb-2">
-            My Inventories
+            Inventories
           </h1>
           <p className="text-gray-600">
             Create and manage your inventory collections
@@ -357,16 +356,12 @@ const Inventories = () => {
                     }`}
                   >
                     <td className="px-6 py-4 whitespace-nowrap">
-                      {canEdit(inventory) ? (
                         <input
                           type="checkbox"
                           checked={selectedInventories.has(inventory.id)}
                           onChange={() => handleSelectInventory(inventory.id)}
                           className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
                         />
-                      ) : (
-                        <div className="h-4 w-4"></div>
-                      )}
                     </td>
                     <td className="px-6 py-4">
                       <div className="flex items-center gap-3">
@@ -378,7 +373,7 @@ const Inventories = () => {
                           />
                         )}
                         <div>
-                          <div className="font-medium text-gray-900">
+                          <div onClick={() => handleInventoryClick(inventory.id)} className="font-medium text-blue-500 underline hover:text-blue-600 cursor-pointer">
                             {inventory.title}
                           </div>
                           {inventory.description && (

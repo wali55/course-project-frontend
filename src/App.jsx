@@ -9,6 +9,7 @@ import Register from './pages/Register';
 import Dashboard from './pages/Dashboard';
 import Profile from './pages/Profile';
 import Admin from './pages/Admin';
+import InventoryPage from './pages/InventoryPage';
 
 function App() {
   return (
@@ -31,6 +32,7 @@ function App() {
             <Route path="/" element={<ProtectedRoute><Layout /></ProtectedRoute>}>
               <Route index element={<Navigate to="/dashboard" replace />} />
               <Route path="dashboard" element={<Dashboard />} />
+              <Route path="inventories/:inventoryId" element={<InventoryPage />} />
               <Route path="profile" element={<Profile />} />
               <Route path="admin" element={<ProtectedRoute adminOnly><Admin /></ProtectedRoute>} />
             </Route>

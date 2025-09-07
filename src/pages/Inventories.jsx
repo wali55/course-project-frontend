@@ -70,8 +70,8 @@ const Inventories = () => {
       sortOrder,
       filters 
     }));
-    dispatch(fetchCategories());
-    dispatch(fetchTags());
+    dispatch(fetchCategories()).unwrap();
+    dispatch(fetchTags()).unwrap();
   }, [dispatch, currentPage, pageSize, search, sortField, sortOrder, filters]);
 
   const navigate = useNavigate();
@@ -150,7 +150,7 @@ const Inventories = () => {
     if (window.confirm(confirmMessage)) {
       try {
         const deletePromises = Array.from(selectedInventories).map((id) =>
-          dispatch(deleteInventory(id))
+          dispatch(deleteInventory(id)).unwrap()
         );
         await Promise.all(deletePromises);
         setSelectedInventories(new Set());
@@ -162,7 +162,7 @@ const Inventories = () => {
           sortField,
           sortOrder,
           filters 
-        }));
+        })).unwrap();
       } catch (error) {
         toast.error("Failed to delete inventories");
       }
@@ -208,7 +208,7 @@ const Inventories = () => {
 
   const handleInventoryClick = async (id) => {
     dispatch(clearAccessList());
-    await dispatch(fetchAccessList(id));
+    await dispatch(fetchAccessList(id)).unwrap();
     navigate(`/inventories/${id}`);
   }
 

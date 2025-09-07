@@ -16,7 +16,7 @@ const InventorySettings = ({ inventory }) => {
 
   useEffect(() => {
     if (!tags || tags.length === 0) {
-      dispatch(fetchTags());
+      dispatch(fetchTags()).unwrap();
     }
   }, [dispatch, tags]);
 
@@ -108,7 +108,7 @@ const InventorySettings = ({ inventory }) => {
 
     try {
       if (inventory) {
-        await dispatch(updateInventory({ id: inventory.id, data: formData }));
+        await dispatch(updateInventory({ id: inventory.id, data: formData })).unwrap();
       } 
       toast("Inventory updated successfully");
     } catch (error) {
@@ -123,7 +123,7 @@ const InventorySettings = ({ inventory }) => {
 
   const handleDelete = async () => {
     try {
-        await dispatch(deleteInventory(inventory?.id));
+        await dispatch(deleteInventory(inventory?.id)).unwrap();
         toast("Inventory deleted successfully");
         navigate("/dashboard");
     } catch (error) {

@@ -13,7 +13,7 @@ const InventoryForm = ({ inventory, onClose }) => {
 
   useEffect(() => {
     if (!tags || tags.length === 0) {
-      dispatch(fetchTags());
+      dispatch(fetchTags()).unwrap();
     }
   }, [dispatch, tags]);
 
@@ -105,9 +105,9 @@ const InventoryForm = ({ inventory, onClose }) => {
 
     try {
       if (inventory) {
-        await dispatch(updateInventory({ id: inventory.id, data: formData }));
+        await dispatch(updateInventory({ id: inventory.id, data: formData })).unwrap();
       } else {
-        await dispatch(createInventory(formData));
+        await dispatch(createInventory(formData)).unwrap();
       }
       onClose();
     } catch (error) {

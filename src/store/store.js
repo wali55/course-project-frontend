@@ -1,12 +1,14 @@
-import { configureStore } from '@reduxjs/toolkit';
-import authReducer from './slices/authSlice';
-import inventoriesReducer from './slices/inventoriesSlice';
-import accessControlReducer from './slices/accessControlSlice';
+import { configureStore } from "@reduxjs/toolkit";
+import authReducer from "./slices/authSlice";
+import inventoriesReducer from "./slices/inventoriesSlice";
+import accessControlReducer from "./slices/accessControlSlice";
+import customFieldsReducer from "./slices/customFieldsSlice";
 
 export const store = configureStore({
   reducer: {
     auth: authReducer,
     inventories: inventoriesReducer,
-    accessControl: accessControlReducer
+    accessControl: accessControlReducer,
+    customFields: customFieldsReducer,
   },
 });

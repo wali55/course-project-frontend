@@ -2,6 +2,7 @@ import { Tabs, Tab, Card, CardBody } from "@heroui/react";
 import InventoryAccessControl from "../components/InventoryAccessControl";
 import { useSelector } from "react-redux";
 import InventorySettings from "../components/InventorySettings";
+import CustomFieldsManager from "../components/CustomFieldsManager";
 
 const InventoryPage = () => {
   const { inventory } = useSelector((state) => state.accessControl);
@@ -52,7 +53,7 @@ const InventoryPage = () => {
             <Tab key="fields" title="Fields">
               <Card>
                 <CardBody>
-                  Fields.
+                  <CustomFieldsManager />
                 </CardBody>
               </Card>
             </Tab>

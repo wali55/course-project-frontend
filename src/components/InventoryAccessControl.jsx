@@ -38,14 +38,14 @@ const InventoryAccessControl = ({ inventoryId }) => {
 
   useEffect(() => {
     if (inventory?.id) {
-      dispatch(fetchAccessList(inventory?.id));
+      dispatch(fetchAccessList(inventory?.id)).unwrap();
     }
   }, [dispatch, inventoryId]);
 
   const debouncedSearch = useCallback(
     debounce((query) => {
       if (query.length >= 1) {
-        dispatch(searchUsers({ inventoryId: inventory?.id, query }));
+        dispatch(searchUsers({ inventoryId: inventory?.id, query })).unwrap();
       } else {
         dispatch(clearUserSearch());
       }
@@ -62,13 +62,13 @@ const InventoryAccessControl = ({ inventoryId }) => {
   };
 
   const handleAddUser = async (user) => {
-    await dispatch(addUserAccess({ inventoryId: inventory?.id, userId: user.id, user }));
+    await dispatch(addUserAccess({ inventoryId: inventory?.id, userId: user.id, user })).unwrap();
     setShowAddUser(false);
   };
 
   const handleRemoveUser = async (accessId) => {
     if (confirm("Remove this user's access?")) {
-      await dispatch(removeUserAccess({ inventoryId: inventory?.id, accessId }));
+      await dispatch(removeUserAccess({ inventoryId: inventory?.id, accessId })).unwrap();
     }
   };
 

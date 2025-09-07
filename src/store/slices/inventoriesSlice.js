@@ -22,8 +22,8 @@ export const fetchInventories = createAsyncThunk(
       });
 
       return response.data;
-    } catch (err) {
-      return rejectWithValue(err.response?.data?.message || "Failed to fetch inventories");
+    } catch (error) {
+      return rejectWithValue(error.response?.data?.message || "Failed to fetch inventories");
     }
   }
 );

@@ -21,8 +21,6 @@ import {
   Filter,
   Tag,
   FolderOpen,
-  ChevronLeft,
-  ChevronRight,
 } from "lucide-react";
 import InventoryForm from "../components/InventoryForm";
 import LoadingSpinner from "../components/LoadingSpinner";

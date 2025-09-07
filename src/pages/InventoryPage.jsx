@@ -3,6 +3,7 @@ import InventoryAccessControl from "../components/InventoryAccessControl";
 import { useSelector } from "react-redux";
 import InventorySettings from "../components/InventorySettings";
 import CustomFieldsManager from "../components/CustomFieldsManager";
+import IdFormatBuilder from "../components/IdFormatBuilder";
 
 const InventoryPage = () => {
   const { inventory } = useSelector((state) => state.accessControl);
@@ -46,7 +47,7 @@ const InventoryPage = () => {
             <Tab key="customId" title="Custom ID">
               <Card>
                 <CardBody>
-                  Custom ID.
+                  <IdFormatBuilder inventoryId={inventory?.id} />
                 </CardBody>
               </Card>
             </Tab>

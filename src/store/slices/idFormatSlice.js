@@ -53,7 +53,8 @@ const idFormatSlice = createSlice({
     elements: [],
     preview: '',
     isLoading: false,
-    error: null
+    error: null,
+    isSaved: false
   },
   reducers: {
     addElement: (state, action) => {
@@ -61,19 +62,25 @@ const idFormatSlice = createSlice({
         id: Date.now().toString(),
         ...action.payload
       });
+      state.isSaved = false;
     },
     updateElement: (state, action) => {
       const { id, updates } = action.payload;
       const element = state.elements.find(e => e.id === id);
-      if (element) Object.assign(element, updates);
+      if (element) {
+        Object.assign(element, updates);
+        state.isSaved = false;
+      }
     },
     removeElement: (state, action) => {
       state.elements = state.elements.filter(e => e.id !== action.payload);
+      state.isSaved = false;
     },
     reorderElements: (state, action) => {
       const { dragIndex, hoverIndex } = action.payload;
       const [draggedElement] = state.elements.splice(dragIndex, 1);
       state.elements.splice(hoverIndex, 0, draggedElement);
+      state.isSaved = false;
     },
     clearError: (state) => {
       state.error = null;
@@ -89,6 +96,7 @@ const idFormatSlice = createSlice({
         state.isLoading = false;
         state.elements = action.payload.format?.elements || [];
         state.preview = action.payload.preview || '';
+        state.isSaved = true;
       })
       .addCase(loadIdFormat.rejected, (state, action) => {
         state.isLoading = false;
@@ -102,6 +110,7 @@ const idFormatSlice = createSlice({
       })
       .addCase(saveIdFormat.fulfilled, (state) => {
         state.isLoading = false;
+        state.isSaved = true;
       })
       .addCase(saveIdFormat.rejected, (state, action) => {
         state.isLoading = false;

@@ -9,10 +9,11 @@ import {
 import DraggableElement from './DraggableElement';
 import { addElement, clearError, generatePreview, loadIdFormat, removeElement, reorderElements, saveIdFormat, updateElement } from '../store/slices/idFormatSlice';
 import { CUSTOM_ID_ELEMENT_TYPES } from '../utils/customIdElementTypes';
+import LoadingSpinner from './LoadingSpinner';
 
 const IdFormatBuilder = ({ inventoryId }) => {
   const dispatch = useDispatch();
-  const { elements, preview, isLoading, error } = useSelector(state => state.idFormat);
+  const { elements, preview, isLoading, error, isSaved } = useSelector(state => state.idFormat);
   const [draggedIndex, setDraggedIndex] = useState(null);
   const [showAddMenu, setShowAddMenu] = useState(false);
 
@@ -53,7 +54,7 @@ const IdFormatBuilder = ({ inventoryId }) => {
 
   const copyPreview = () => navigator.clipboard.writeText(preview);
 
-  if (isLoading) return <div className="flex justify-center py-8">Loading...</div>;
+  if (isLoading && elements.length === 0) return <LoadingSpinner />
 
   return (
     <div className="max-w-4xl mx-auto p-6">
@@ -61,11 +62,15 @@ const IdFormatBuilder = ({ inventoryId }) => {
         <h2 className="text-2xl font-bold">Custom ID Format</h2>
         <button
           onClick={() => dispatch(saveIdFormat({ inventoryId, elements })).unwrap()}
-          disabled={isLoading || elements.length === 0}
-          className="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 disabled:opacity-50 flex items-center gap-2"
+          disabled={isLoading || elements.length === 0 || isSaved}
+          className={`px-4 py-2 text-white rounded-lg flex items-center gap-2 ${
+            isSaved 
+              ? 'bg-green-600 cursor-default' 
+              : 'bg-green-500 hover:bg-green-600 disabled:opacity-50'
+          }`}
         >
           <Save className="w-4 h-4" />
-          Save Format
+          {isSaved ? 'Saved' : 'Save Format'}
         </button>
       </div>
 
@@ -73,6 +78,12 @@ const IdFormatBuilder = ({ inventoryId }) => {
         <div className="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-lg mb-6 flex justify-between items-center">
           {error}
           <button onClick={() => dispatch(clearError())} className="text-red-400 hover:text-red-600">×</button>
+        </div>
+      )}
+
+      {!isSaved && elements.length > 0 && (
+        <div className="bg-yellow-50 border border-yellow-200 text-yellow-800 px-4 py-3 rounded-lg mb-6">
+          You have unsaved changes. Click "Save Format" to persist your changes.
         </div>
       )}
 
@@ -149,7 +160,8 @@ const IdFormatBuilder = ({ inventoryId }) => {
         <h3 className="font-medium mb-2">Rules & Information</h3>
         <ul className="text-sm text-gray-600 space-y-1">
           <li>• Drag elements to reorder • Use settings to configure options</li>
-          <li>• Custom IDs must be unique • Existing items keep their IDs</li>
+          <li>• Custom IDs are auto-generated for new items • Existing items keep their IDs</li>
+          <li>• Changes are saved to database and applied to new inventory items</li>
         </ul>
       </div>
     </div>

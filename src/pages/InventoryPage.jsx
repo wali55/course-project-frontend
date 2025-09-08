@@ -15,6 +15,7 @@ const InventoryPage = () => {
 
   return (
     <div className="flex w-full flex-col">
+      <h1 className="py-4 text-lg"><span className="font-semibold">Inventory Title:</span> {inventory.title}</h1>
       <Tabs
         aria-label="Options"
         classNames={{

@@ -4,6 +4,7 @@ import { useSelector } from "react-redux";
 import InventorySettings from "../components/InventorySettings";
 import CustomFieldsManager from "../components/CustomFieldsManager";
 import IdFormatBuilder from "../components/IdFormatBuilder";
+import ItemManagement from "../components/ItemManagement";
 
 const InventoryPage = () => {
   const { inventory } = useSelector((state) => state.accessControl);
@@ -15,7 +16,7 @@ const InventoryPage = () => {
 
   return (
     <div className="flex w-full flex-col">
-      <h1 className="py-4 text-lg"><span className="font-semibold">Inventory Title:</span> {inventory.title}</h1>
+      <h1 className="py-4 text-lg"><span className="font-semibold">Inventory Title:</span> {inventory?.title}</h1>
       <Tabs
         aria-label="Options"
         classNames={{
@@ -25,7 +26,7 @@ const InventoryPage = () => {
         <Tab key="items" title="Items">
           <Card>
             <CardBody>
-              Items.
+              <ItemManagement canEdit={true} inventoryId={inventory?.id} />
             </CardBody>
           </Card>
         </Tab>

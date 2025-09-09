@@ -1,18 +1,29 @@
 import { Tabs, Tab, Card, CardBody } from "@heroui/react";
 import InventoryAccessControl from "../components/InventoryAccessControl";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import InventorySettings from "../components/InventorySettings";
 import CustomFieldsManager from "../components/CustomFieldsManager";
 import IdFormatBuilder from "../components/IdFormatBuilder";
 import ItemManagement from "../components/ItemManagement";
+import { useParams } from "react-router-dom";
+import { fetchSingleInventory } from "../store/slices/inventoriesSlice";
+import { useEffect } from "react";
 
 const InventoryPage = () => {
-  const { inventory } = useSelector((state) => state.accessControl);
+  const dispatch = useDispatch();
+  const { inventoryId } = useParams();
+
+  useEffect(() => {
+      if (inventoryId) {
+        dispatch(fetchSingleInventory(inventoryId)).unwrap();
+      }
+    }, [dispatch, inventoryId]);
+
+  const { currentInventory: inventory } = useSelector((state) => state.inventories);
   const { user } = useSelector((state) => state.auth);
 
   const ownerAccess = inventory?.creator?.id === user?.id;
   const isAdmin = user?.role === "ADMIN";
-
 
   return (
     <div className="flex w-full flex-col">
@@ -27,13 +38,6 @@ const InventoryPage = () => {
           <Card>
             <CardBody>
               <ItemManagement canEdit={true} inventoryId={inventory?.id} />
-            </CardBody>
-          </Card>
-        </Tab>
-        <Tab key="chat" title="Chat">
-          <Card>
-            <CardBody>
-              Chat.
             </CardBody>
           </Card>
         </Tab>
@@ -64,13 +68,6 @@ const InventoryPage = () => {
               <Card>
                 <CardBody>
                   <InventoryAccessControl />
-                </CardBody>
-              </Card>
-            </Tab>
-            <Tab key="stats" title="Stats">
-              <Card>
-                <CardBody>
-                  Stats.
                 </CardBody>
               </Card>
             </Tab>

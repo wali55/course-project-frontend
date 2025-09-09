@@ -28,6 +28,18 @@ export const fetchInventories = createAsyncThunk(
   }
 );
 
+export const fetchSingleInventory = createAsyncThunk(
+  "inventories/fetchSingleInventory",
+  async (id, { rejectWithValue }) => {
+    try {
+      const response = await api.get(`/inventories/${id}`);
+      return response.data;
+    } catch (error) {
+      return rejectWithValue(error.response?.data?.message || "Failed to fetch inventories");
+    }
+  }
+);
+
 
 export const fetchCategories = createAsyncThunk(
   "inventories/fetchCategories",
@@ -130,6 +142,10 @@ const inventoriesSlice = createSlice({
         state.inventories = action.payload.inventories;
         state.total = action.payload.total;
         state.pages = action.payload.pages;
+      })
+      .addCase(fetchSingleInventory.fulfilled, (state, action) => {
+        state.loading = false;
+        state.currentInventory = action.payload;
       })
       .addCase(fetchCategories.fulfilled, (state, action) => {
         state.categories = action.payload;

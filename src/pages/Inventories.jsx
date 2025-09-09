@@ -205,6 +205,7 @@ const Inventories = () => {
   const hasSelections = selectedCount > 0;
 
   const handleInventoryClick = async (id) => {
+    await dispatch(fetchAccessList(id)).unwrap();
     navigate(`/app/inventories/${id}`);
   }
 

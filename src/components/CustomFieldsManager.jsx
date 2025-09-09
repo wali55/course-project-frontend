@@ -62,7 +62,7 @@ const CustomFieldsManager = () => {
 
   return (
     <div className="max-w-4xl mx-auto p-6">
-      <h2 className="text-2xl font-bold mb-6">Custom Fields ({inventory.title})</h2>
+      <h2 className="text-2xl font-bold mb-6">Custom Fields ({inventory?.title})</h2>
 
       {error && (
         <div className="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-lg mb-6">

@@ -1,38 +1,25 @@
 import { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import {
-  Plus,
-  Edit2,
-  Trash2,
   ChevronUp,
   ChevronDown,
   FileText,
 } from "lucide-react";
-import ItemForm from "./ItemForm";
 import { 
-  bulkAction, 
-  clearError, 
-  fetchItems, 
-  fetchSingleItem, 
-  setCurrentItem, 
-  setSelectedItems, 
-  setShowForm 
+  clearError,  
 } from "../store/slices/itemsSlice";
-import toast from "react-hot-toast";
 import { useNavigate } from "react-router-dom";
+import { fetchHomeInventoryItems } from "../store/slices/homeSlice";
 
-const ItemManagement = ({ inventoryId, canEdit }) => {
+const HomeInventoryItems = ({ inventoryId }) => {
   const dispatch = useDispatch();
   const {
     items,
     customFields,
     loading,
     error,
-    selectedItems,
-    showForm,
-    currentItem,
     pagination,
-  } = useSelector((state) => state.items);
+  } = useSelector((state) => state.home);
 
   const [search, setSearch] = useState("");
   const [sortField, setSortField] = useState("createdAt");
@@ -45,7 +32,7 @@ const ItemManagement = ({ inventoryId, canEdit }) => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    dispatch(fetchItems({
+    dispatch(fetchHomeInventoryItems({
       inventoryId,
       search,
       sort: sortField,
@@ -62,45 +49,8 @@ const ItemManagement = ({ inventoryId, canEdit }) => {
     setCurrentPage(1);
   };
 
-  const handleSelectItem = (itemId) => {
-    const newSelected = selectedItems.includes(itemId)
-      ? selectedItems.filter(id => id !== itemId)
-      : [...selectedItems, itemId];
-    dispatch(setSelectedItems(newSelected));
-  };
-
-  const handleSelectAll = () => {
-    dispatch(setSelectedItems(
-      selectedItems.length === items.length ? [] : items.map(item => item.id)
-    ));
-  };
-
-  const handleBulkAction = async (action) => {
-    if (!selectedItems.length) return;
-    
-    if (action === "delete" && !window.confirm(`Delete ${selectedItems.length} items?`)) return;
-    
-    if (action === "edit" && selectedItems.length === 1) {
-      const item = items.find(i => i.id === selectedItems[0]);
-      dispatch(setCurrentItem(item));
-      dispatch(setShowForm(true));
-      return;
-    }
-    
-    if (action === "delete") {
-      await dispatch(bulkAction({
-        action: "delete",
-        itemIds: selectedItems,
-        inventoryId,
-      })).unwrap();
-      toast('Action performed successfully');
-      dispatch(fetchItems({ inventoryId, page: currentPage })).unwrap();
-    }
-  }
-
   const handleItemClick = async (id) => {
-    await dispatch(fetchSingleItem(id)).unwrap();
-    navigate(`/app/inventories/${inventoryId}/items/${id}`);
+    navigate(`/inventories/${inventoryId}/items/${id}`);
   }
 
   const renderFieldValue = (field, value) => {
@@ -146,18 +96,6 @@ const ItemManagement = ({ inventoryId, canEdit }) => {
     <div className="space-y-6">
       <div className="flex justify-between items-center">
         <h2 className="text-xl font-semibold">Items</h2>
-        {canEdit && (
-          <button
-            onClick={() => {
-              dispatch(setCurrentItem(null));
-              dispatch(setShowForm(true));
-            }}
-            className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
-          >
-            <Plus className="w-4 h-4" />
-            Add Item
-          </button>
-        )}
       </div>
 
       {error && (
@@ -172,49 +110,11 @@ const ItemManagement = ({ inventoryId, canEdit }) => {
         </div>
       )}
 
-      <div className="bg-white rounded-lg border-gray-200">
-        {selectedItems.length > 0 && canEdit && (
-          <div className="p-4 bg-blue-50 border-b border-blue-200">
-            <div className="flex items-center justify-between">
-              <span className="text-sm text-blue-800">
-                {selectedItems.length} item{selectedItems.length !== 1 ? "s" : ""} selected
-              </span>
-              <div className="flex gap-2">
-                {selectedItems.length === 1 && (
-                  <button
-                    onClick={() => handleBulkAction("edit")}
-                    className="px-3 py-1 text-sm bg-blue-100 text-blue-800 rounded hover:bg-blue-200 flex items-center gap-1"
-                  >
-                    <Edit2 className="w-3 h-3" /> Edit
-                  </button>
-                )}
-                <button
-                  onClick={() => handleBulkAction("delete")}
-                  className="px-3 py-1 text-sm bg-red-100 text-red-800 rounded hover:bg-red-200 flex items-center gap-1"
-                >
-                  <Trash2 className="w-3 h-3" /> Delete
-                </button>
-              </div>
-            </div>
-          </div>
-        )}
-      </div>
-
       <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full">
             <thead className="bg-gray-50">
               <tr>
-                {canEdit && (
-                  <th className="p-4 text-left">
-                    <input
-                      type="checkbox"
-                      checked={selectedItems.length === items.length && items.length > 0}
-                      onChange={handleSelectAll}
-                      className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
-                    />
-                  </th>
-                )}
                 <th className="p-4 text-left">
                   <SortButton field="customId">ID</SortButton>
                 </th>
@@ -233,16 +133,6 @@ const ItemManagement = ({ inventoryId, canEdit }) => {
             <tbody className="divide-y divide-gray-200">
               {items.map(item => (
                 <tr key={item.id} className="hover:bg-gray-50">
-                  {canEdit && (
-                    <td className="p-4">
-                      <input
-                        type="checkbox"
-                        checked={selectedItems.includes(item.id)}
-                        onChange={() => handleSelectItem(item.id)}
-                        className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
-                      />
-                    </td>
-                  )}
                   <td onClick={() => handleItemClick(item.id)} className="p-4 font-mono text-sm text-blue-500 underline cursor-pointer">
                     {item.customId || `#${item.id.slice(-8)}`}
                   </td>
@@ -292,19 +182,8 @@ const ItemManagement = ({ inventoryId, canEdit }) => {
           </div>
         )}
       </div>
-
-      {showForm && (
-        <ItemForm
-          inventoryId={inventoryId}
-          item={currentItem}
-          onClose={() => {
-            dispatch(setShowForm(false));
-            dispatch(setCurrentItem(null));
-          }}
-        />
-      )}
     </div>
   );
 };
 
-export default ItemManagement;
+export default HomeInventoryItems;

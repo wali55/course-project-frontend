@@ -25,7 +25,7 @@ const Layout = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between h-16">
             <div className="flex items-center">
-              <Link to="/dashboard" className="text-xl font-bold text-gray-900">
+              <Link to="/app/dashboard" className="text-xl font-bold text-gray-900">
                 Inventory
               </Link>
             </div>
@@ -40,14 +40,14 @@ const Layout = () => {
                 )}
               </div>
               <Link
-                to="/profile"
+                to="/app/profile"
                 className="p-2 text-gray-400 hover:text-gray-600 rounded-full hover:bg-gray-100"
               >
                 <Settings className="w-5 h-5" />
               </Link>
               {user?.role === "ADMIN" && (
                 <Link
-                  to="/admin"
+                  to="/app/admin"
                   className="px-3 py-1 text-sm text-blue-600 hover:bg-blue-50 rounded-md"
                 >
                   Admin

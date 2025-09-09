@@ -125,7 +125,7 @@ const InventorySettings = ({ inventory }) => {
     try {
         await dispatch(deleteInventory(inventory?.id)).unwrap();
         toast("Inventory deleted successfully");
-        navigate("/dashboard");
+        navigate("/app/dashboard");
     } catch (error) {
         toast("Failed to delete inventory");
     }

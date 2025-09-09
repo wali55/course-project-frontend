@@ -16,6 +16,11 @@ import Profile from "./pages/Profile";
 import Admin from "./pages/Admin";
 import InventoryPage from "./pages/InventoryPage";
 import ItemDetails from "./pages/ItemDetails";
+import Home from "./pages/Home";
+import HomeInventoryPage from "./pages/HomeInventoryPage";
+import HomeLayout from "./components/HomeLayout";
+import HomeInventories from "./components/HomeInventories";
+import HomeItemPage from "./pages/HomeItemPage";
 
 function App() {
   return (
@@ -33,10 +38,21 @@ function App() {
             }}
           />
           <Routes>
+            <Route path="/" element={<HomeLayout />}>
+              <Route index element={<HomeInventories />} />
+              <Route
+                path="inventories/:inventoryId"
+                element={<HomeInventoryPage />}
+              />
+              <Route
+                path="inventories/:inventoryId/items/:itemId"
+                element={<HomeItemPage />}
+              />
+            </Route>
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
             <Route
-              path="/"
+              path="/app"
               element={
                 <ProtectedRoute>
                   <Layout />

@@ -2,17 +2,13 @@ import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import {
   clearError,
-  deleteInventory,
   fetchCategories,
-  fetchInventories,
   fetchTags,
   setCurrentInventory,
   setShowForm,
 } from "../store/slices/inventoriesSlice";
 import {
   Plus,
-  Edit2,
-  Trash2,
   Search,
   ChevronUp,
   ChevronDown,
@@ -22,33 +18,31 @@ import {
   Tag,
   FolderOpen,
 } from "lucide-react";
-import InventoryForm from "../components/InventoryForm";
 import LoadingSpinner from "../components/LoadingSpinner";
 import FilterInventories from "../components/FilterInventories";
 import toast from "react-hot-toast";
 import InventoriesPagination from "../components/InventoriesPagination";
 import { useNavigate } from "react-router-dom";
 import { clearAccessList, fetchAccessList } from "../store/slices/accessControlSlice";
+import { fetchHomeInventories, fetchSingleHomeInventory } from "../store/slices/homeSlice";
 
-const Inventories = () => {
+const HomeInventories = () => {
   const dispatch = useDispatch();
   const {
+    categories
+  } = useSelector((state) => state.inventories);
+  const {
     inventories,
-    categories,
     loading,
     error,
-    showForm,
-    currentInventory,
-    total,
-    pages 
-  } = useSelector((state) => state.inventories);
-  const { user } = useSelector((state) => state.auth || { user: null });
+    inventoryTotal: total,
+    inventoryPages: pages
+  } = useSelector((state) => state.home);
 
   const [search, setSearch] = useState("");
   const [sortField, setSortField] = useState("updatedAt");
   const [sortOrder, setSortOrder] = useState("desc");
   const [selectedInventories, setSelectedInventories] = useState(new Set());
-  const [selectAll, setSelectAll] = useState(false);
   const [showFilters, setShowFilters] = useState(false);
   const [filters, setFilters] = useState({
     category: "all",
@@ -60,7 +54,7 @@ const Inventories = () => {
   const [pageSize, setPageSize] = useState(10);
 
   useEffect(() => {
-    dispatch(fetchInventories({ 
+    dispatch(fetchHomeInventories({ 
       page: currentPage, 
       pageSize,
       search,
@@ -99,74 +93,6 @@ const Inventories = () => {
     setCurrentPage(1); 
   };
 
-  const handleSelectAll = () => {
-    if (selectAll) {
-      setSelectedInventories(new Set());
-    } else {
-      setSelectedInventories(new Set(filteredAndSortedInventories.map((inv) => inv.id)));
-    }
-    setSelectAll(!selectAll);
-  };
-
-  const handleSelectInventory = (inventoryId) => {
-    const newSelected = new Set(selectedInventories);
-    if (newSelected.has(inventoryId)) {
-      newSelected.delete(inventoryId);
-    } else {
-      newSelected.add(inventoryId);
-    }
-    setSelectedInventories(newSelected);
-    setSelectAll(
-      newSelected.size === filteredAndSortedInventories.length &&
-        filteredAndSortedInventories.length > 0
-    );
-  };
-
-  const handleBulkEdit = () => {
-    if (selectedInventories.size === 1) {
-      const inventoryId = Array.from(selectedInventories)[0];
-      const inventory = inventories.find((inv) => inv.id === inventoryId);
-      dispatch(setCurrentInventory(inventory));
-      dispatch(setShowForm(true));
-    } else {
-      alert("Please select exactly one inventory to edit");
-    }
-  };
-
-  const handleBulkDelete = async () => {
-    if (selectedInventories.size === 0) {
-      alert("Please select inventories to delete");
-      return;
-    }
-
-    const confirmMessage = `Are you sure you want to delete ${
-      selectedInventories.size
-    } inventor${
-      selectedInventories.size === 1 ? "y" : "ies"
-    }? This action cannot be undone.`;
-
-    if (window.confirm(confirmMessage)) {
-      try {
-        const deletePromises = Array.from(selectedInventories).map((id) =>
-          dispatch(deleteInventory(id)).unwrap()
-        );
-        await Promise.all(deletePromises);
-        setSelectedInventories(new Set());
-        setSelectAll(false);
-        dispatch(fetchInventories({ 
-          page: currentPage, 
-          pageSize,
-          search,
-          sortField,
-          sortOrder,
-          filters 
-        })).unwrap();
-      } catch (error) {
-        toast.error("Failed to delete inventories");
-      }
-    }
-  };
-
   const handleSearchChange = (e) => {
     setSearch(e.target.value);
     clearTimeout(window.searchTimeout);
@@ -196,8 +122,7 @@ const Inventories = () => {
 
   const handlePageChange = (page) => {
     setCurrentPage(page);
-    setSelectedInventories(new Set()); 
-    setSelectAll(false);
+    setSelectedInventories(new Set());
   };
 
 
@@ -205,7 +130,7 @@ const Inventories = () => {
   const hasSelections = selectedCount > 0;
 
   const handleInventoryClick = async (id) => {
-    navigate(`/app/inventories/${id}`);
+    navigate(`/inventories/${id}`);
   }
 
   if (loading) {
@@ -271,27 +196,6 @@ const Inventories = () => {
                   selected
                 </span>
               </div>
-              <div className="flex items-center space-x-2">
-                <button
-                  onClick={handleBulkEdit}
-                  disabled={selectedCount !== 1}
-                  className={`inline-flex items-center px-3 py-2 border border-transparent text-sm font-medium rounded-md ${
-                    selectedCount === 1
-                      ? "text-blue-700 bg-blue-100 hover:bg-blue-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-                      : "text-gray-400 bg-gray-100 cursor-not-allowed"
-                  }`}
-                >
-                  <Edit2 className="w-4 h-4 mr-2" />
-                  Edit Inventory
-                </button>
-                <button
-                  onClick={handleBulkDelete}
-                  className="inline-flex items-center px-3 py-2 border border-transparent text-sm font-medium rounded-md text-red-700 bg-red-100 hover:bg-red-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
-                >
-                  <Trash2 className="w-4 h-4 mr-2" />
-                  Delete Selected
-                </button>
-              </div>
             </div>
           </div>
         )}
@@ -300,14 +204,6 @@ const Inventories = () => {
           <table className="w-full">
             <thead className="bg-gray-50">
               <tr>
-                <th className="px-6 py-3 text-left">
-                  <input
-                    type="checkbox"
-                    checked={selectAll}
-                    onChange={handleSelectAll}
-                    className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
-                  />
-                </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   <SortButton field="title">Title</SortButton>
                 </th>
@@ -351,14 +247,6 @@ const Inventories = () => {
                       selectedInventories.has(inventory.id) ? "bg-blue-50" : ""
                     }`}
                   >
-                    <td className="px-6 py-4 whitespace-nowrap">
-                        <input
-                          type="checkbox"
-                          checked={selectedInventories.has(inventory.id)}
-                          onChange={() => handleSelectInventory(inventory.id)}
-                          className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
-                        />
-                    </td>
                     <td className="px-6 py-4">
                       <div className="flex items-center gap-3">
                         {inventory.image && (
@@ -440,18 +328,8 @@ const Inventories = () => {
 
         <InventoriesPagination pages={pages} total={total} currentPage={currentPage} handlePageChange={handlePageChange} pageSize={pageSize}  />
       </div>
-
-      {showForm && (
-        <InventoryForm
-          inventory={currentInventory}
-          onClose={() => {
-            dispatch(setShowForm(false));
-            dispatch(setCurrentInventory(null));
-          }}
-        />
-      )}
     </div>
   );
 };
 
-export default Inventories;
+export default HomeInventories;

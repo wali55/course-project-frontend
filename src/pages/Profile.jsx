@@ -2,7 +2,6 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { useDispatch, useSelector } from "react-redux";
 import { updateProfile } from "../store/slices/authSlice";
-import { useAuth } from "../hooks/useAuth";
 import toast from "react-hot-toast";
 
 const Profile = () => {

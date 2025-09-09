@@ -10,25 +10,25 @@ import {
   FileText,
   Image as ImageIcon,
 } from "lucide-react";
-import { fetchSingleItem } from "../store/slices/itemsSlice";
+import { fetchSingleHomeInventoryItem } from "../store/slices/homeSlice";
 import LoadingSpinner from "../components/LoadingSpinner";
 
-const ItemDetails = () => {
+const HomeItemPage = () => {
   const { itemId } = useParams();
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const {
-    currentItem: item,
+    singleItem: item,
     loading,
     error,
     customFields,
-  } = useSelector((state) => state.items);
+  } = useSelector((state) => state.home);
 
   useEffect(() => {
     if (!itemId) {
       return;
     }
-    dispatch(fetchSingleItem(itemId));
+    dispatch(fetchSingleHomeInventoryItem(itemId));
   }, [dispatch, itemId]);
 
   const renderFieldValue = (fieldName, value, fieldType) => {
@@ -252,4 +252,4 @@ const ItemDetails = () => {
   );
 };
 
-export default ItemDetails;
+export default HomeItemPage;

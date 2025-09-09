@@ -8,26 +8,37 @@ import ItemManagement from "../components/ItemManagement";
 import { useParams } from "react-router-dom";
 import { fetchSingleInventory } from "../store/slices/inventoriesSlice";
 import { useEffect } from "react";
+import LoadingSpinner from "../components/LoadingSpinner";
 
 const InventoryPage = () => {
   const dispatch = useDispatch();
   const { inventoryId } = useParams();
 
   useEffect(() => {
-      if (inventoryId) {
-        dispatch(fetchSingleInventory(inventoryId)).unwrap();
-      }
-    }, [dispatch, inventoryId]);
+    if (!inventoryId) {
+      return;
+    }
+    dispatch(fetchSingleInventory(inventoryId)).unwrap();
+  }, [dispatch, inventoryId]);
 
-  const { currentInventory: inventory } = useSelector((state) => state.inventories);
+  const { currentInventory: inventory } = useSelector(
+    (state) => state.inventories
+  );
   const { user } = useSelector((state) => state.auth);
 
   const ownerAccess = inventory?.creator?.id === user?.id;
   const isAdmin = user?.role === "ADMIN";
 
+  if (!inventoryId) {
+    return <LoadingSpinner />;
+  }
+
   return (
     <div className="flex w-full flex-col">
-      <h1 className="py-4 text-lg"><span className="font-semibold">Inventory Title:</span> {inventory?.title}</h1>
+      <h1 className="py-4 text-lg">
+        <span className="font-semibold">Inventory Title:</span>{" "}
+        {inventory?.title}
+      </h1>
       <Tabs
         aria-label="Options"
         classNames={{

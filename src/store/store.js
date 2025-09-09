@@ -5,6 +5,7 @@ import accessControlReducer from "./slices/accessControlSlice";
 import customFieldsReducer from "./slices/customFieldsSlice";
 import idFormatReducer from "./slices/idFormatSlice";
 import itemsReducer  from "./slices/itemsSlice";
+import homeReducer from "./slices/homeSlice";
 
 export const store = configureStore({
   reducer: {
@@ -13,6 +14,7 @@ export const store = configureStore({
     accessControl: accessControlReducer,
     customFields: customFieldsReducer,
     idFormat: idFormatReducer,
-    items: itemsReducer
+    items: itemsReducer,
+    home: homeReducer
   },
 });

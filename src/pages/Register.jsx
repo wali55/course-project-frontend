@@ -21,7 +21,7 @@ const Register = () => {
     try {
       setIsLoading(true);
       await dispatch(registerUser(data)).unwrap();
-      navigate("/dashboard");
+      navigate("/app/dashboard");
       toast.success("Registration successful!");
     } catch (err) {
       toast.error(err);
@@ -31,7 +31,14 @@ const Register = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
+    <div className="bg-gray-50">
+      <button
+        onClick={() => navigate("/")}
+        className="m-4 text-sm bg-blue-500 text-white font-medium p-2 rounded-md"
+      >
+        Back to home
+      </button>
+    <div className="min-h-screen flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-md w-full space-y-8">
         <div>
           <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
@@ -128,6 +135,7 @@ const Register = () => {
           </div>
         </form>
       </div>
+    </div>
     </div>
   );
 };

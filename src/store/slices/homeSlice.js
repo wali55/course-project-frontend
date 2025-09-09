@@ -3,9 +3,18 @@ import api from "../../services/api";
 
 export const fetchHomeInventories = createAsyncThunk(
   "customFields/fetchHomeInventories",
-  async ({ rejectWithValue }) => {
+  async ({ page, pageSize, search, sortField, sortOrder, filters }, { rejectWithValue }) => {
     try {
-      const response = await api.get(`/home/inventories`);
+      const params = {
+        page,
+        limit: pageSize,
+        search,
+        sortBy: sortField,
+        sortOrder,
+        ...filters,
+      };
+
+      const response = await api.get(`/home/inventories`, { params });
       return response.data;
     } catch (error) {
       return rejectWithValue(
@@ -14,6 +23,7 @@ export const fetchHomeInventories = createAsyncThunk(
     }
   }
 );
+
 
 export const fetchSingleHomeInventory = createAsyncThunk(
   "customFields/fetchSingleHomeInventory",

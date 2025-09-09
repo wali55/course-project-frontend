@@ -4,11 +4,8 @@ import {
   clearError,
   fetchCategories,
   fetchTags,
-  setCurrentInventory,
-  setShowForm,
 } from "../store/slices/inventoriesSlice";
 import {
-  Plus,
   Search,
   ChevronUp,
   ChevronDown,
@@ -23,8 +20,7 @@ import FilterInventories from "../components/FilterInventories";
 import toast from "react-hot-toast";
 import InventoriesPagination from "../components/InventoriesPagination";
 import { useNavigate } from "react-router-dom";
-import { clearAccessList, fetchAccessList } from "../store/slices/accessControlSlice";
-import { fetchHomeInventories, fetchSingleHomeInventory } from "../store/slices/homeSlice";
+import { fetchHomeInventories } from "../store/slices/homeSlice";
 
 const HomeInventories = () => {
   const dispatch = useDispatch();
@@ -155,16 +151,6 @@ const HomeInventories = () => {
           >
             <Filter className="w-4 h-4" />
             Filters
-          </button>
-          <button
-            onClick={() => {
-              dispatch(setCurrentInventory(null));
-              dispatch(setShowForm(true));
-            }}
-            className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
-          >
-            <Plus className="w-4 h-4" />
-            Create Inventory
           </button>
         </div>
       </div>
